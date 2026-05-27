@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>菲律賓話題週報</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", "Heiti TC", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f6fa;
+    color: #1f2937;
+    line-height: 1.6;
+    padding: 24px 16px 60px;
+    min-height: 100vh;
+  }
+  .container { max-width: 880px; margin: 0 auto; }
+
+  /* Header */
+  header { margin-bottom: 24px; }
+  .header-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; padding-bottom: 16px;
+    border-bottom: 2px solid #0d47a1;
+    flex-wrap: wrap;
+  }
+  .title-block { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 240px; }
+  .flag-bar {
+    width: 6px; height: 48px; border-radius: 3px;
+    background: linear-gradient(180deg, #0d47a1 0%, #0d47a1 33%, #ffffff 33%, #ffffff 66%, #d32f2f 66%, #d32f2f 100%);
+    border: 0.5px solid #ddd;
+  }
+  h1 {
+    font-size: 24px; font-weight: 600; color: #0d47a1;
+    letter-spacing: 0.5px;
+  }
+  .meta { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .meta .history-tag { color: #c2410c; font-weight: 600; margin-left: 6px; }
+
+  .controls { display: flex; gap: 8px; align-items: center; }
+  .control-btn, select {
+    font-family: inherit; font-size: 13px; padding: 7px 14px;
+    background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px;
+    color: #1f2937; cursor: pointer; transition: all 0.15s;
+  }
+  .control-btn:hover, select:hover { border-color: #0d47a1; }
+  .control-btn:disabled {
+    opacity: 0.4; cursor: not-allowed; background: #f1f5f9;
+  }
+  select { padding-right: 28px; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+
+  /* Filter row */
+  .filter-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px; gap: 16px; flex-wrap: wrap;
+  }
+  .category-filters { display: flex; gap: 6px; }
+  .filter-btn {
+    font-family: inherit; font-size: 13px; padding: 6px 14px;
+    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 999px;
+    color: #475569; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #0d47a1; color: #0d47a1; }
+  .filter-btn.active {
+    background: #0d47a1; color: #ffffff; border-color: #0d47a1;
+  }
+  .badge-filters {
+    display: flex; gap: 14px; font-size: 13px; color: #475569;
+  }
+  .badge-filters label {
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .badge-filters input { cursor: pointer; }
+
+  /* Card */
+  .cards-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .card {
+    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 16px 18px; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: #cbd5e1; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .card.expanded {
+    border-color: #0d47a1; border-width: 2px; padding: 15px 17px;
+  }
+
+  .card-badges {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+  .badge-breaking { background: #fee2e2; color: #b91c1c; }
+  .badge-meme { background: #e9d5ff; color: #6b21a8; }
+  .badge-social { background: #dbeafe; color: #1d4ed8; }
+  .badge-entertainment { background: #fed7aa; color: #9a3412; }
+  .badge-gaming { background: #d1fae5; color: #047857; }
+  .heat-score {
+    margin-left: auto; font-size: 11px; color: #94a3b8;
+  }
+
+  .card-title {
+    font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 6px;
+    line-height: 1.45;
+  }
+  .card-summary {
+    font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 10px;
+  }
+
+  /* Source platforms */
+  .sources-row {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .sources-label { font-size: 11px; color: #94a3b8; margin-right: 2px; }
+  .source-chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 12px;
+    border: 1px solid; white-space: nowrap;
+  }
+  .source-tiktok { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+  .source-facebook { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .source-instagram { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .source-x { background: #fdf2f8; color: #be185d; border-color: #fbcfe8; }
+  .source-youtube { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .source-reddit { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+  .source-news { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+  .source-vertical { background: #f5f3ff; color: #6b21a8; border-color: #ddd6fe; }
+  .source-other { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
+  /* Card footer */
+  .card-footer {
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+  .small-btn {
+    font-family: inherit; font-size: 12px; padding: 4px 12px;
+    background: transparent; border: 1px solid #cbd5e1; border-radius: 6px;
+    color: #475569; cursor: pointer; transition: all 0.15s;
+  }
+  .small-btn:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
+
+  /* Expanded detail */
+  .detail-block {
+    margin-top: 14px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .detail-section { }
+  .detail-label {
+    font-size: 11px; font-weight: 600; color: #0d47a1;
+    margin-bottom: 4px; letter-spacing: 0.5px;
+  }
+  .detail-text { font-size: 14px; line-height: 1.65; color: #1f2937; }
+  .keyword-chip {
+    display: inline-block; font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px; padding: 3px 8px; background: #f1f5f9; border-radius: 4px;
+    margin-right: 6px; margin-bottom: 4px; color: #334155;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 14px;
+  }
+
+  /* Modal */
+  .modal {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 100;
+  }
+  .modal.hidden { display: none; }
+  .modal-content {
+    background: #ffffff; border-radius: 12px; padding: 24px 28px;
+    max-width: 480px; width: 100%;
+  }
+  .modal-content h3 {
+    font-size: 17px; font-weight: 600; color: #0f172a; margin-bottom: 12px;
+  }
+  .modal-content p { font-size: 14px; color: #475569; margin-bottom: 16px; line-height: 1.6; }
+  .modal-prompt {
+    display: block; padding: 12px 16px; background: #f1f5f9; border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px;
+    color: #0d47a1; margin-bottom: 16px; word-break: break-all;
+  }
+  .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-buttons .primary {
+    background: #0d47a1; color: #ffffff; border-color: #0d47a1;
+  }
+  .modal-buttons .primary:hover { background: #0a3a85; }
+
+  /* Footer credit */
+  .page-footer {
+    text-align: center; font-size: 11px; color: #94a3b8;
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #0f172a; color: #ffffff; padding: 10px 20px; border-radius: 6px;
+    font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 600px) {
+    body { padding: 16px 12px 40px; }
+    .header-row { flex-direction: column; align-items: stretch; }
+    .controls { justify-content: flex-end; }
+    h1 { font-size: 20px; }
+    .card { padding: 14px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-row">
+      <div class="title-block">
+        <div class="flag-bar"></div>
+        <div>
+          <h1>菲律賓話題週報</h1>
+          <div class="meta" id="weekMeta">載入中…</div>
+        </div>
+      </div>
+      <div class="controls">
+        <select id="weekSelector" aria-label="切換週次"></select>
+        <button class="control-btn" id="refreshBtn" title="手動重整本週">🔄 重整</button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="category-filters" role="group" aria-label="領域篩選">
+        <button class="filter-btn active" data-category="all">全部</button>
+        <button class="filter-btn" data-category="social">社群</button>
+        <button class="filter-btn" data-category="entertainment">娛樂</button>
+        <button class="filter-btn" data-category="gaming">遊戲</button>
+      </div>
+      <div class="badge-filters">
+        <label><input type="checkbox" id="filterBreaking"> 僅看 <span class="badge badge-breaking">爆</span></label>
+        <label><input type="checkbox" id="filterMeme"> 僅看 <span class="badge badge-meme">純梗</span></label>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="cards-list" id="cardsList"></div>
+  </main>
+
+  <div class="page-footer">
+    本工具由 Claude 每週一 9:00 自動更新 ｜ <span id="lastUpdated"></span>
+  </div>
+</div>
+
+<div class="modal hidden" id="refreshModal">
+  <div class="modal-content">
+    <h3>手動重整本週內容</h3>
+    <p>這是離線 HTML，無法直接觸發 Claude。請至 Cowork 對話視窗對 Claude 說以下指令：</p>
+    <code class="modal-prompt" id="refreshPromptText">請更新本週菲律賓話題週報</code>
+    <div class="modal-buttons">
+      <button class="control-btn" id="closeModalBtn">關閉</button>
+      <button class="control-btn primary" id="copyPromptBtn">📋 複製指令</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== 資料：每週卡片陣列 ======
+const DATA = {
+  "2026-W22": {
+    "period": "2026-05-25 ~ 2026-05-31",
+    "updated_at": "2026-05-25T09:00:00+08:00",
+    "cards": [
+      {
+        "id": "W22-001",
+        "title": "MPL PH S17 季後賽今週開戰：ONIC vs Aurora、Omega vs Twisted Minds Play-in 雙場連發（5/27 FilOil 開打）",
+        "summary": "本季最熱電競大戲本週三 5/27 在 FilOil Centre 揭幕，Play-in 雙場直接決定上半區命運，菲律賓電競社群進入賽前狂熱期。",
+        "detail": {
+          "what": "MPL Philippines Season 17 Playoffs 於 2026-05-27 至 05-31 在 FilOil Centre（San Juan Arena）登場，總獎金 15 萬美金。5/27 下午 3 點 ONIC PH vs Aurora Gaming（Bo5），晚間 7 點 Smart Omega vs Twisted Minds PH（Bo5）。賽制混合單／雙淘汰，決賽採 BO7。Team Liquid PH 以例行賽 13-1 頂種直接進上半區準決賽。",
+          "why_viral": "Smart Omega 結束兩季未進季後賽的低潮、ONIC PH 連續橫掃 AP.Bren 強勢晉級、TLPH 全季最強戰績——多個情緒線交織形成「誰能阻止 TLPH」的核心敘事。菲律賓電競 FB 社團、X、YouTube 直播間齊聲預測，週末熱度將達高峰。",
+          "metrics": "已驗證：賽期 2026-05-27 至 2026-05-31（Liquipedia、Philstar、ph-mpl.com 官方確認）；ONIC vs Aurora 開賽時間 5/27 15:00 PHT、Omega vs Twisted Minds 19:00 PHT；獎金池 USD 150,000。",
+          "marketing_angle": "5/27 開戰至 5/31 決賽是品牌操作電競觀眾的最佳窗口：直播聊天室、賽事 Hashtag、賽前預測互動皆有極高參與率。能量飲料、電信、快消品、3C 品牌建議在 Facebook Gaming 與 YouTube 直播留言串、TikTok 短影音同步出擊。賽事戰隊周邊與選手梗可即時跟拍，但避免押注賠率類涉博彩內容。"
+        },
+        "category": "gaming",
+        "badges": ["breaking"],
+        "sources": [
+          { "platform": "vertical", "role": "報導", "date": "2026-05-22", "name": "Liquipedia" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-11", "name": "Philstar" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-21", "name": "PinoyGamer" },
+          { "platform": "youtube", "role": "直播", "date": "2026-05-27" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-23" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-24" }
+        ],
+        "keywords": ["MPL PH Season 17 playoffs FilOil", "ONIC PH Aurora Gaming bracket 2026", "Smart Omega Twisted Minds MPL"],
+        "heat_score": 95
+      },
+      {
+        "id": "W22-002",
+        "title": "BABYMONSTER《CHOOM》舞蹈挑戰席捲菲律賓 TikTok（#CHOOMChallenge × Monstiez × 全球破 11 萬影片）",
+        "summary": "BABYMONSTER 新曲《CHOOM》MV 上線數小時即衝上菲律賓 TikTok For You 頁面，全球已有 11 萬+ 跟拍影片，菲律賓舞蹈圈以群體編排殺出重圍。",
+        "detail": {
+          "what": "韓國女團 BABYMONSTER 新單曲《춤 (CHOOM)》同步釋出舞蹈挑戰版本（#CHOOMChallenge），核心動作包括「Monster Claw」爪型手勢、「Shoulder-Snap」肩部頓挫，與副歌「Let's choom」段落的同步擺臂踢腿。粉絲名「MONSTIEZ」。MV 以本年度最快速度突破 1 億觀看。",
+          "why_viral": "「Monster Claw」單一手勢學習門檻極低、「Shoulder-Snap」看似簡單卻拍起來高級感強，兩者一同形成「易拍但難精」的甜蜜點。菲律賓 K-pop 舞蹈圈以群體編排聞名東南亞，本週多個 Pinoy 舞蹈隊版本進入推薦頁，創作者更把場景搬到 Jeepney 終點站、籃球場、商場屋頂。",
+          "metrics": "已驗證：全球 #CHOOMChallenge 影片數 11 萬+（多家 K-pop 媒體確認）；MV 觀看 1 億+ 創 2026 年 K-pop 最快紀錄；菲律賓地區 TikTok 熱度為東南亞最高（PinoySeoul 觀察）；具體 PH 區觀看數待查證。",
+          "marketing_angle": "鎖定 13-28 歲女性／K-pop 粉絲族群的品牌（美妝、飲料、便利商店、手機週邊）可借勢做品牌員工或合作 KOL 的 CHOOM 跟拍。建議搭配品牌專屬 Hashtag，並選擇有「地標性」的場地拍攝以提升轉發性。避免改編原曲：YG 對授權審核嚴格。"
+        },
+        "category": "social",
+        "badges": ["breaking", "meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-05-15" },
+          { "platform": "youtube", "role": "起源", "date": "2026-05-15" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-05-17" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-20", "name": "PinoySeoul" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-22", "name": "K-popEcho" }
+        ],
+        "keywords": ["#CHOOMChallenge BABYMONSTER", "Monster Claw shoulder snap dance", "BABYMONSTER CHOOM Philippines TikTok"],
+        "heat_score": 92
+      },
+      {
+        "id": "W22-003",
+        "title": "BINI 帶回 Billboard Global Force 獎座的後座力延燒至 5 月底（#ProudFilipinas × Coachella 後勁）",
+        "summary": "BINI 4/30 在洛杉磯接下 Billboard Women in Music「Global Force」獎，獻給全菲 OPM 同業，5 月持續成為品牌、媒體與粉絲社群討論主旋律。",
+        "detail": {
+          "what": "P-pop 八人女團 BINI（Jhoanna、Aiah、Gwen、Sheena、Mikha、Maloi、Stacey、Colet）於 2026-04-30（PHT）在洛杉磯 Hollywood Palladium 領下 Billboard Women in Music「Global Force Award」，由超模 Cara Delevingne 頒獎。她們是繼 Sarah Geronimo（2024）後第二組獲此獎的菲律賓藝人，並在獲獎感言中將榮譽「獻給所有 OPM 同業」。BINI 同年 4 月也成為首組登上 Coachella 主舞台的菲律賓團體。",
+          "why_viral": "「Proud Filipinas」一句直擊菲律賓集體榮譽感，FB／X 上 #ProudFilipinas、#BINIxBillboard 持續延燒。整個 5 月本地媒體（Rappler、Philstar、GMA、Manila Bulletin、Billboard Philippines）輪番加碼報導、Vogue Philippines 也跟進，使話題進入長尾期。",
+          "metrics": "已驗證：頒獎日 2026-04-30 PHT；頒獎人 Cara Delevingne；報導媒體至少 8 家（Billboard、Rappler、Philstar、GMA、Manila Bulletin、Vogue、Manila Standard、Asian Journal）；具體社群觸及數待查證。",
+          "marketing_angle": "與 BINI 合作或借勢的窗口仍在開啟——但採用「為菲律賓驕傲」敘事比直接「蹭明星」效益更高。建議結合「成就菲律賓人才」、「支持本地創作」主題，可從 OPM 跨產業（教育、職涯、技能養成、女性力量）切入，反而比單純藝人代言更容易引發轉發。"
+        },
+        "category": "entertainment",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "vertical", "role": "報導", "date": "2026-04-30", "name": "Billboard Philippines" },
+          { "platform": "rappler", "role": "報導", "date": "2026-05-01" },
+          { "platform": "gma", "role": "報導", "date": "2026-05-01" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-02" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-02" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-10", "name": "Vogue Philippines" }
+        ],
+        "keywords": ["BINI Billboard Global Force 2026", "Proud Filipinas BINI Cara Delevingne", "BINI Coachella OPM"],
+        "heat_score": 89
+      },
+      {
+        "id": "W22-004",
+        "title": "「2026 是新的 2016」懷舊浪潮席捲菲律賓 IG／TikTok（#2026isthenew2016）",
+        "summary": "始於 2025 年底的全球懷舊運動本月仍在菲律賓延燒：菲律賓網友翻出 Snapchat 濾鏡自拍、舊版 iPhone 模糊照、Mannequin Challenge、Dabbing 等 2016 元素，重溫網路青春期。",
+        "detail": {
+          "what": "「2026 is the new 2016」始於 2025-12-31 TikTok 用戶 @taybrafang 與 @joebro909 發起的「Great Meme Reset」，倡議 2026-01-01 為「重置日」，召喚 2016 年的網路文化回歸。內容包含：Snapchat 小狗／花環濾鏡自拍、過曝亮色照、初代 iPhone 低解析度照、Bottle Flip、Mannequin Challenge、Pokémon GO、Dabbing、「catch me outside」等梗。",
+          "why_viral": "對 25-35 歲菲律賓網友而言這是「網路青春期」回憶，社群轉貼舊照成本低、情感濃度高。FB 限時動態、IG Reels 都成為主要展示場。同時也出現反向論述：部分 TikToker 製作「2016 其實不好」（提及當年事件）反駁影片，形成正反交鋒，延長話題壽命。",
+          "metrics": "已驗證：Wikipedia 已建立「2026 is the new 2016」條目；Cosmo.ph 已撰寫專文；Know Your Meme 條目已建立；菲律賓地區具體數據待查證。",
+          "marketing_angle": "懷舊行銷的黃金子題庫：品牌可拿 2016 年的產品包裝、廣告、視覺風格做「復刻版」內容，或邀請員工拍「2016 年的我」對比照。特別適合美妝、3C、速食、時尚品牌。注意：避開純政治／災難事件回顧，集中在生活、娛樂、流行文化。"
+        },
+        "category": "social",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2025-12-31" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-01-05" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-01-10" },
+          { "platform": "vertical", "role": "報導", "date": "2026-01-15", "name": "Cosmo.ph" },
+          { "platform": "other", "role": "報導", "date": "2026-03-01", "name": "Wikipedia 條目" }
+        ],
+        "keywords": ["2026 is the new 2016", "Great Meme Reset Philippines", "Pinoy 2016 nostalgia TikTok"],
+        "heat_score": 82
+      },
+      {
+        "id": "W22-005",
+        "title": "Fitterkarma《Pag-Ibig ay Kanibalismo II》拉下 Cup of Joe《Multo》登 OPM 榜首",
+        "summary": "Cup of Joe 持續近一年的《Multo》本季交棒：Fitterkarma 慢熱的《Pag-Ibig ay Kanibalismo II》本月正式登上菲律賓 Spotify OPM 榜首，新世代另類搖滾全面接管榜單。",
+        "detail": {
+          "what": "Fitterkarma 是 2026 年突破的菲律賓另類搖滾樂團，代表作《Pag-Ibig ay Kanibalismo II》（愛情即食人 II）與《Kalapastangan》接連登榜。《Pag-Ibig ay Kanibalismo II》發行近一年才終於在 5 月正式擠下 Cup of Joe 連霸數月的《Multo》——後者 2 月時 Spotify 累計播放已破 5.13 億，是史上最高 OPM 串流紀錄。",
+          "why_viral": "Fitterkarma 歌詞主題融合「愛情中的吞噬感」，引發 Filipino Gen Z 對情感親密議題的共鳴。ZEEN Media 以「Gen Z 對親密的飢餓感」為題深度報導後，TikTok 創作者大量採用副歌做情感類短影音背景。樂團清晰的另類搖滾路線與本地敘事為「OPM 新世代復興」再添實證。",
+          "metrics": "已驗證：Philstar 報導「Fitterkarma 取代 Cup of Joe 登榜首」2026-01-30；Cup of Joe《Multo》Spotify 突破 5.13 億播放（2026-02-20 已驗證）；ZEEN Media 深度報導已驗證；本月 Spotify 多份 Viral OPM 播放清單將《Pag-Ibig ay Kanibalismo II》列為強推。",
+          "marketing_angle": "Fitterkarma 風格鮮明、價位仍可談，是品牌洽談 OPM 合作的「下一波對象」。情感類保健品、戀愛 App、咖啡品牌、Z 世代金融服務都適合借勢；避免將其商品化成「快樂洗腦曲」式廣告，因樂團情感濃度與品牌格調匹配才有效。"
+        },
+        "category": "entertainment",
+        "badges": [],
+        "sources": [
+          { "platform": "vertical", "role": "報導", "date": "2026-01-30", "name": "Philstar" },
+          { "platform": "vertical", "role": "報導", "date": "2026-02-20", "name": "Philstar" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-05", "name": "ZEEN Media" },
+          { "platform": "tiktok", "role": "延燒", "date": "2026-05-10" },
+          { "platform": "facebook", "role": "熱議", "date": "2026-05-18" }
+        ],
+        "keywords": ["Fitterkarma Pag-Ibig ay Kanibalismo II", "Cup of Joe Multo Spotify OPM 2026", "OPM new wave Gen Z Philippines"],
+        "heat_score": 81
+      },
+      {
+        "id": "W22-006",
+        "title": "「Buksan Mo」舞蹈梗異軍突起（菲律賓 TikTok For You 頁面新霸主）",
+        "summary": "繼 #BibitawNa 與 #HawakMo 之後，本週菲律賓 TikTok 出現新一波「Buksan Mo」舞蹈梗，動作門檻更低、配樂魔性，被觀察者列入 5 月新增的菲律賓本土梗榜。",
+        "detail": {
+          "what": "「Buksan Mo」（打開吧）為 5 月新增的菲律賓 TikTok 舞蹈梗，根據 TikTok 趨勢頁面觀察，動作圍繞「打開」這個指令動作演化（開門、開冰箱、開禮物等情境），任何人都能在三秒內加入。配樂為菲律賓 Budots 變體節奏。",
+          "why_viral": "「動作對應現實情境」是菲律賓 Meme 的長青套路，「Buksan Mo」延續了《Hawak Mo Ang Beat》的填空梗框架，但門檻更低、情境更多元。已有素人版「Buksan mo ang sweldo」（打開薪資單）、「Buksan mo ang gate」（開大門）等變體出現。",
+          "metrics": "搜尋結果確認為 2026-05 菲律賓 TikTok 活躍趨勢；具體影片觀看數待查證；多個 Pinoy TikTok 趨勢頁列入本月新興項目。",
+          "marketing_angle": "「Buksan mo ang ___」可作為品牌活動、新品上市的填空梗——把「打開」連到「打開驚喜／打開新功能／打開優惠」很直觀。電商、餐飲、3C 品牌可第一週搶位拍 15 秒短影音。注意：原始配樂授權需確認。"
+        },
+        "category": "social",
+        "badges": ["breaking", "meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-05-12" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-18" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-05-20" }
+        ],
+        "keywords": ["Buksan Mo dance trend Philippines", "Pinoy TikTok new dance May 2026", "Filipino Budots Buksan Mo"],
+        "heat_score": 78
+      },
+      {
+        "id": "W22-007",
+        "title": "Smart Omega 灰姑娘故事：兩季低潮終止、本週率先打 Play-in（菲律賓電競暖心線）",
+        "summary": "MPL PH 老牌戰隊 Smart Omega 結束連續兩季未進季後賽的低潮，本週迎戰 Twisted Minds PH，是粉絲心中的本季最暖心翻身故事。",
+        "detail": {
+          "what": "Smart Omega 在 MPL PH Season 17 例行賽結尾以 2-1 擊敗 Team Falcons，結束連續兩季未進季後賽的低潮，順利搶下 Play-in 門票。本週 5/27 19:00 PHT 對上 Twisted Minds PH（Bo5），勝者進上半區、敗者轉下半區。",
+          "why_viral": "Omega 過去曾是頂尖戰隊，連兩季落馬讓老粉絲心情起伏極大；本季逆轉晉級的故事在 FB 電競社團、X 上引發大量「歡迎回來」貼文。媒體 GMA、Philstar、TechBeatPH 皆以「結束低潮」為標題報導，奠定本季「翻身敘事」主軸。",
+          "metrics": "已驗證：Philstar 與 GMA 報導 2026-05-11；TechBeatPH 報導已驗證；對戰 Falcons 比分 2-1（GMA 確認）；Play-in 對手 Twisted Minds PH 5/27 19:00 PHT。",
+          "marketing_angle": "電競「逆風翻身」故事天然吸引大眾媒體與品牌共鳴，運動品牌、健康食品、保險品牌可借「永不放棄」敘事輕量贊助 Omega 相關內容。Omega 粉絲忠誠度高、社群活躍，社群短期合作 ROI 通常高於投放硬廣。"
+        },
+        "category": "gaming",
+        "badges": [],
+        "sources": [
+          { "platform": "vertical", "role": "報導", "date": "2026-05-11", "name": "Philstar" },
+          { "platform": "gma", "role": "報導", "date": "2026-05-11" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-19", "name": "TechBeatPH" },
+          { "platform": "facebook", "role": "熱議", "date": "2026-05-20" }
+        ],
+        "keywords": ["Smart Omega MPL PH playoffs comeback", "Omega Twisted Minds PH May 27", "MPL Philippines Season 17 storylines"],
+        "heat_score": 76
+      },
+      {
+        "id": "W22-008",
+        "title": "#BibitawNa × #HawakMo 雙梗持續發酵：菲律賓品牌跟拍熱潮全面展開",
+        "summary": "Kim Chiu 帶起的《#BibitawNaDanceChallenge》與《Hawak Mo Ang Beat》「Hawak mo ang ___」填空梗本週仍持續滾動，多家本地品牌（速食、電信、銀行）已釋出官方跟拍版。",
+        "detail": {
+          "what": "上週兩大本土梗本週進入「品牌跟拍期」：菲律賓速食、電信、銀行業者陸續釋出官方版本，《BibitawNa》改為員工版、運勢挑戰版；《Hawak Mo Ang Beat》填空格式被擴展為「Hawak mo ang sweldo」、「Hawak mo ang promo code」等行銷專用版本。",
+          "why_viral": "本地品牌官方加入跟拍，標誌著梗已從「Meme 流行」轉化為「商業共識」，使話題進入第二波傳播；本地媒體開始整理「最有趣品牌版本」清單，再次放大流量。",
+          "metrics": "搜尋結果確認為 2026-05 持續熱度話題；Hawak Mo Ang Beat Spot.ph 與 Inquirer 已有深度報導；具體品牌名單仍在更新中。",
+          "marketing_angle": "若品牌尚未跟拍，本週仍是最後一波黃金窗口；6 月後熱度將快速回落。建議優先選《Hawak Mo Ang ___》填空版（成本低、改寫彈性大），而非直接複製舞蹈。台灣品牌進菲市場做數位廣告時，可借這兩梗本土化版本提升 CTR。"
+        },
+        "category": "social",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "延燒", "date": "2026-05-20" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-22" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-05-23" },
+          { "platform": "spot", "role": "報導", "date": "2026-03-26" },
+          { "platform": "inquirer", "role": "報導", "date": "2026-03-28" }
+        ],
+        "keywords": ["#BibitawNaDanceChallenge brand cover", "Hawak mo ang fill-in-the-blank meme", "Pinoy meme brand collab 2026"],
+        "heat_score": 72
+      },
+      {
+        "id": "W22-009",
+        "title": "OPM 持續霸榜 Spotify PH：Top 50 前 10 名 OPM 佔比逾六成（本地化背景音樂首選）",
+        "summary": "本週 Spotify PH Top 50 前 10 名 OPM 佔比仍超過 60%：BINI、Fitterkarma、Cup of Joe、December Avenue、Ben&Ben、SB19 同台霸榜，TikTok 創作者首選背景音樂。",
+        "detail": {
+          "what": "Spotify 菲律賓「OPM Top & Viral Hits 2026」、「Viral OPM Hits 2026」、「Top Hits Philippines 2026」三大旗艦清單共累積 8.5 萬+ 儲存量。本週前 10 強分佈：Fitterkarma、Cup of Joe、BINI、SB19、Ben&Ben、December Avenue、Maki、Arthur Nery 等新世代藝人輪流上位。",
+          "why_viral": "「聽 OPM 是身份認同」此一情感主軸延續整個 2026，串流榜單與 TikTok 形成相互強化：榜上歌成為短影音背景，短影音又把歌往榜上推。Manila Times 2025-10 預測的「OPM 跨境年」正在實現中。",
+          "metrics": "已驗證：OPM Top & Viral Hits 2026 播放清單 29.9K+ 儲存；Viral OPM Hits 2026 播放清單規模已驗證；Top Hits Philippines 2026 規模已驗證；Cup of Joe《Multo》5.13 億播放（2026-02 數字，已驗證）。",
+          "marketing_angle": "投放菲律賓市場的短影音廣告，背景音樂優先選 OPM 新世代作品（須取得授權）——比國際流行更能引發本地情感共鳴，授權費通常更低。可考慮直接與 Fitterkarma、Cup of Joe、Ben&Ben、Maki、Arthur Nery 等樂團或經紀方洽談 sync license。"
+        },
+        "category": "entertainment",
+        "badges": [],
+        "sources": [
+          { "platform": "vertical", "role": "起源", "date": "2026-05-01", "name": "Spotify Top 50 PH" },
+          { "platform": "tiktok", "role": "延燒", "date": "2026-05-12" },
+          { "platform": "youtube", "role": "延燒", "date": "2026-05-18" },
+          { "platform": "facebook", "role": "熱議", "date": "2026-05-22" }
+        ],
+        "keywords": ["Spotify Top 50 Philippines OPM 2026", "Fitterkarma BINI SB19 chart May", "OPM new wave Filipino music 2026"],
+        "heat_score": 68
+      }
+    ]
+  },
+  "2026-W21": {
+    "period": "2026-05-18 ~ 2026-05-24",
+    "updated_at": "2026-05-21T09:30:00+08:00",
+    "cards": [
+      {
+        "id": "W21-001",
+        "title": "《Hawak Mo Ang Beat》AI 生成爭議延燒 × Pokwang「帳單版」梗爆紅（#HawakMoAngBeat）",
+        "summary": "3 月起席捲全菲的魔性舞曲本週仍居 TikTok For You 頁面前段，AI 生成疑雲加上喜劇演員 Pokwang 的「帳單版」改編持續推進熱度。",
+        "detail": {
+          "what": "《Hawak Mo Ang Beat》（你握著節拍）由自稱法籍創作人 DJ Mogo 製作，融合 Visayan cha-cha 與菲律賓 Budots 風格，於 2026 年 3 月開始在 TikTok 瘋傳。Vice Ganda、Charo Santos、Toni Gonzaga、SexBomb Girls 等知名藝人皆發佈跟拍影片。SB19 成員 Pablo 及菲律賓作曲家公會 FILSCAP 借此事呼籲加強 AI 音樂監管。",
+          "why_viral": "「這首歌是 AI 做的嗎？」疑雲推動第一波討論；喜劇演員 Pokwang 將副歌改成「Hawak mo ang bill」（你握著帳單）配上電費單圖，引爆第二波笑浪。Spot.ph 與 Inquirer 深度調查報導後，反而讓更多人好奇去搜尋原曲。教堂版跳舞影片在 4 月引發「不敬還是有趣」論戰，週週都有新材料。",
+          "metrics": "Spot.ph 報導 2026-03-26（已驗證）；Inquirer POP! 報導 2026-03-28（已驗證）；Spotify 菲律賓榜前 10 持續出現；TikTok 具體觀看數待查證（但多個播放清單有 29K-31K 儲存量確認熱度）。",
+          "marketing_angle": "「Hawak mo ang ___」已是成熟的填空梗框架。品牌可做「Hawak mo ang [產品/服務]」圖卡或 15 秒短影音，貼近本土幽默語感。須注意：若要在廣告中使用原曲配樂，需聯繫 DJ Mogo 取得商業授權，或委託製作 cover 版本。"
+        },
+        "category": "social",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-03-20" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-03-22" },
+          { "platform": "spot", "role": "報導", "date": "2026-03-26" },
+          { "platform": "inquirer", "role": "報導", "date": "2026-03-28" },
+          { "platform": "youtube", "role": "延燒", "date": "2026-04-01" }
+        ],
+        "keywords": ["#HawakMoAngBeat", "Hawak mo ang bill Pokwang", "DJ Mogo AI song Philippines"],
+        "heat_score": 91
+      },
+      {
+        "id": "W21-002",
+        "title": "KathNad 首度合體預告引爆粉絲圈（Kathryn Bernardo × Nadine Lustre）",
+        "summary": "Star Magic 本週釋出 Kathryn Bernardo 與 Nadine Lustre 合作短片預告，菲律賓兩大女神同框首次曝光，X 趨勢衝上第一，粉絲圈炸開。",
+        "detail": {
+          "what": "ABS-CBN 旗下 Star Magic 經紀公司本週釋出一支預告短片，確認 Kathryn Bernardo（Kapamilya 天后）與 Nadine Lustre（個人品牌出道型藝人）將首度正式合作。兩人各自代表不同的粉絲生態，一向被視為競爭關係。",
+          "why_viral": "本次合作被粉絲解讀為「世代和解」。預告中的眼神交流與配樂引發大量截圖二創。#KathNad 三天內衝上菲律賓 X 趨勢第一，兩方粉絲都在這個標籤下狂歡，形成罕見的跨粉絲圈聯合熱議。",
+          "metrics": "搜尋結果確認 YouTube、FB、X、IG 多平台熱議（2026-05-18 前後起）；具體觀看數待查證。PEP.ph 跟進報導。",
+          "marketing_angle": "兩大粉絲圈的「破壁」敘事是難得的情感流量紅利期。美妝、時尚、生活風格品牌可以「對立到合作」為靈感主軸做內容或 campaign。建議在本月內完成操作，超過三週後熱度會大幅衰退。"
+        },
+        "category": "entertainment",
+        "badges": ["breaking"],
+        "sources": [
+          { "platform": "youtube", "role": "起源", "date": "2026-05-18" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-18" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-19" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-05-19" },
+          { "platform": "pep", "role": "報導", "date": "2026-05-20" }
+        ],
+        "keywords": ["#KathNad", "Kathryn Bernardo Nadine Lustre collaboration 2026", "Star Magic teaser Kapamilya"],
+        "heat_score": 88
+      },
+      {
+        "id": "W21-003",
+        "title": "#BibitawNaDanceChallenge 持續燒（藝人 Kim Chiu 帶起全民跟拍）",
+        "summary": "Kim Chiu 帶起的 5 秒舞蹈挑戰本週在 TikTok 與 FB Reels 持續發酵，素人、品牌跟拍版本輪番刷新 For You 頁面。",
+        "detail": {
+          "what": "ABS-CBN 旗下 Kapamilya 藝人 Kim Chiu 在新節目宣傳期間發起 #BibitawNaDanceChallenge，動作設計極簡──配合副歌節奏做一個向下甩手的動作，任何人第一次嘗試就能成功。",
+          "why_viral": "Kim Chiu 本人主動轉發素人版本，形成病毒式正循環。網友已延伸出「搶捷運座位版」「催小孩起床版」「辦公室版」等多種情境二創。舞蹈難度低、情境適應性高，是本季最典型的「全民梗舞」。",
+          "metrics": "TikTok #BibitawNaDanceChallenge 具體觀看數待查證；多個搜尋結果確認為 2026-05 當週活躍趨勢；挑戰起源約 2026-05-14 前後。",
+          "marketing_angle": "本週仍在上升期，是品牌快速借勢的黃金窗口。18-30 歲客群的品牌建議請員工或合作 KOL 拍一支「[品牌情境]版」，搭配品牌 Hashtag 投放 TikTok。注意：使用原始配樂需確認授權。"
+        },
+        "category": "social",
+        "badges": ["breaking", "meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-05-14" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-16" },
+          { "platform": "instagram", "role": "延燒", "date": "2026-05-17" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-18" }
+        ],
+        "keywords": ["#BibitawNaDanceChallenge", "Kim Chiu dance TikTok 2026", "Kapamilya dance challenge"],
+        "heat_score": 85
+      },
+      {
+        "id": "W21-004",
+        "title": "MPL PH Season 17 季後賽倒數：TLPH 13-1 頂種，5/27 開打",
+        "summary": "MPL PH S17 例行賽 5/17 收官，Team Liquid PH 以 13-1 全季最強戰績拿頂種。季後賽 5/27 在 FilOil Centre 正式開打，電競社群全面進入預測熱潮。",
+        "detail": {
+          "what": "MPL Philippines Season 17 例行賽於 2026-05-17 結束。Team Liquid PH 以 13-1 系列賽紀錄（全季最強）奪得頂種資格，將直接進入上半區準決賽。本季引進菲律賓首批印尼外援 Savero（Clayton Kuswanto）與 AeronnShikii（Sultan Muhammad），引發大量跨國電競討論。季後賽採混合制（Play-in 單淘汰、正賽雙淘汰、決賽 BO7），地點 FilOil Centre（San Juan City）。",
+          "why_viral": "Aurora Gaming 也確認晉級，整體季後賽對陣格局出爐後，菲律賓電競社群全面進入「預測模式」——各種賽程分析、tier list、外援評價帖子席捲 X 和 FB 電競社團。TLPH 能否完美收官成為本週最熱電競話題。",
+          "metrics": "已驗證：例行賽結束 2026-05-17（GosuGamers、Liquipedia 確認）；TLPH 13-1 頂種（GosuGamers PH、PinoyGamer 確認）；季後賽 2026-05-27 至 2026-05-31（官方公告）；直播平台：YouTube、Facebook Gaming、TikTok。",
+          "marketing_angle": "電競賽事預熱期是品牌最佳曝光時機——觀眾高度黏著且消費能力強。建議在 5/27 Play-in 至 5/31 決賽期間於 Facebook Gaming 和 YouTube 直播貼文串做品牌露出。快消品、能量飲料、電信品牌最直接適用。"
+        },
+        "category": "gaming",
+        "badges": ["breaking"],
+        "sources": [
+          { "platform": "youtube", "role": "直播", "date": "2026-05-17" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-18" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-19" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-18", "name": "GosuGamers PH" },
+          { "platform": "vertical", "role": "報導", "date": "2026-05-18", "name": "PinoyGamer" }
+        ],
+        "keywords": ["MPL PH Season 17 playoffs", "Team Liquid PH TLPH 13-1 top seed", "MPL Philippines 2026 May bracket"],
+        "heat_score": 84
+      },
+      {
+        "id": "W21-005",
+        "title": "David Licauco Taguig 戀情曝光（DavBie CP 粉絲震盪）",
+        "summary": "GMA 男星 David Licauco 被路人在 Taguig 偶遇拍下親密影片，TikTok 迅速衝破千萬觀看，DavBie（David × Barbie Forteza）CP 粉絲情緒崩潰。",
+        "detail": {
+          "what": "GMA Network 旗下演員 David Licauco 本週在 Taguig 某餐廳被路人偶遇，與一名身分未公開女子有親密互動，影片迅速被上傳 TikTok 並擴散至 FB 八卦帳號。",
+          "why_viral": "David 過去與螢幕搭檔 Barbie Forteza 的 CP「DavBie」深受粉絲喜愛，戀情曝光瞬間衝擊 CP 粉絲情緒，引爆大量崩潰留言。同時帶動「藝人私生活應否被偷拍」的網路論戰，兩邊討論同時延燒。",
+          "metrics": "搜尋結果確認為 2026 年當週活躍話題；TikTok 上千萬觀看規模（確認）；FB 八卦帳號廣泛轉貼；具體數字待查證。",
+          "marketing_angle": "本話題情緒敏感，不建議品牌直接借勢。但 CP 文化本身值得長期研究——菲律賓娛樂市場對螢幕 CP 的反應強度遠超台灣，許多品牌透過贊助 CP 專案取得高互動。這次事件後 DavBie 商業合作動向值得追蹤。"
+        },
+        "category": "entertainment",
+        "badges": [],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-05-17" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-05-18" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-18" },
+          { "platform": "pep", "role": "報導", "date": "2026-05-19" }
+        ],
+        "keywords": ["David Licauco Taguig girlfriend spotted 2026", "DavBie Barbie Forteza GMA", "Kapuso celebrity viral couple"],
+        "heat_score": 78
+      },
+      {
+        "id": "W21-006",
+        "title": "MLBB × SexBomb Girls 聯名：「Get Get Aw！」表情永久化（世代橋接行銷教科書）",
+        "summary": "4 月推出的 Mobile Legends × 90 年代國民女團 SexBomb Girls 聯名活動本週完成「Get Get Aw！」戰鬥表情永久化，30+ 世代集體回憶梗持續在社群延燒。",
+        "detail": {
+          "what": "MLBB 為準備慶祝 10 週年，於 2026-04-05 起與菲律賓 90 年代國民舞曲女團 SexBomb Girls（成員 Aira Bermudez、Rochelle Pangilinan、Mhyca Bautista）推出聯名活動。主要內容：《Halukay Ube》MLBB 主題改編 MV、限定造型、「Get Get Aw！」戰鬥表情。2026-04-09 後該表情轉為永久道具，使聯名熱度持續延燒至今。",
+          "why_viral": "勾起 30+ 玩家的 90 年代童年回憶，連不玩遊戲的父母輩也被捲進討論（「媽媽居然認出了 SexBomb Girls！」）。adobo Magazine 特別以「世代橋接行銷」（cross-generational marketing）為題深度報導，被行銷圈廣泛引用。",
+          "metrics": "Philstar.com 報導 2026-04-06（已驗證）；Moonton 官方新聞稿 2026-04-06（已驗證）；adobo Magazine 深度報導（已驗證）；具體遊戲內下載量待查證。",
+          "marketing_angle": "「世代橋接」是這個案例最值得複製的核心：找一個對 30-45 歲受眾有強烈情感連結的菲律賓本地 IP（老歌、童年節目、過氣女團），與現代品牌做聯名，讓年輕與中年受眾都有話說。台灣品牌進菲市場時，可評估類似策略。"
+        },
+        "category": "gaming",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "youtube", "role": "起源", "date": "2026-04-05", "name": "MLBB 官方頻道" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-04-06" },
+          { "platform": "vertical", "role": "報導", "date": "2026-04-06", "name": "Philstar" },
+          { "platform": "vertical", "role": "報導", "date": "2026-04-07", "name": "adobo Magazine" },
+          { "platform": "tiktok", "role": "改編", "date": "2026-04-10" }
+        ],
+        "keywords": ["MLBB SexBomb Girls collab 2026", "Get Get Aw Mobile Legends emote", "Halukay Ube MLBB 10th anniversary"],
+        "heat_score": 72
+      },
+      {
+        "id": "W21-007",
+        "title": "OPM 霸榜 Spotify PH：Fitterkarma × Cup of Joe × December Avenue 週週稱霸",
+        "summary": "本週 Spotify Top 50 Philippines 前 10 名 OPM 佔比超過 60%，Fitterkarma、Skusta Clee、Cup of Joe、December Avenue 四強齊聚，OPM 復興進行式。",
+        "detail": {
+          "what": "Spotify 菲律賓多份播放清單資料（已驗證有 29K-31K 儲存量）顯示，OPM 新世代藝人 Fitterkarma、Cup of Joe、Skusta Clee、December Avenue、Ben&Ben 持續稱霸排行榜，連續多週出現在 Top 50 前段班。這些作品同時也是 TikTok 創作者的首選背景音樂。",
+          "why_viral": "菲律賓年輕世代回流支持本地音樂的趨勢延續——「聽 OPM 是身份認同的一部分」這樣的情感在社群上被反覆強化，讓榜單與 TikTok 之間形成正循環。",
+          "metrics": "Viral OPM Hits 2026 Spotify 播放清單 31K+ 儲存（已驗證）；OPM Top & Viral Hits 2026 播放清單 29K+ 儲存（已驗證）；Top 50 PH 本週 OPM 佔比 60%+（多份清單交叉確認）。",
+          "marketing_angle": "為菲律賓市場製作廣告影片或 TikTok 內容時，OPM 新世代音樂（取得授權後）比使用國際流行音樂更能引發情感連結，且授權費通常更低。Fitterkarma、Cup of Joe 等樂團已有品牌合作前例，建議直接洽談。"
+        },
+        "category": "entertainment",
+        "badges": [],
+        "sources": [
+          { "platform": "vertical", "role": "起源", "date": "2026-05-01", "name": "Spotify Top 50 PH" },
+          { "platform": "tiktok", "role": "延燒", "date": "2026-05-10" },
+          { "platform": "youtube", "role": "延燒", "date": "2026-05-15" },
+          { "platform": "facebook", "role": "熱議", "date": "2026-05-18" }
+        ],
+        "keywords": ["OPM viral 2026 Philippines Spotify", "Fitterkarma Cup of Joe December Avenue", "Filipino music TikTok background 2026"],
+        "heat_score": 66
+      },
+      {
+        "id": "W21-008",
+        "title": "菲律賓 TikTok「激怒釣魚」（Ragebaiting）成主流創作套路",
+        "summary": "刻意發表荒謬爭議觀點、靠憤怒留言衝觸及的「激怒釣魚」手法在本週菲律賓 TikTok 引發大討論，越來越多創作者公開使用，也引發平台生態反思。",
+        "detail": {
+          "what": "「Ragebaiting」（激怒釣魚）是刻意發表讓人想反駁的荒謬內容，藉由憤怒留言暴增來提升演算法觸及的創作策略。在菲律賓 TikTok 常見形式：「菲律賓食物難吃排名」「努力沒有才能重要」等極端論點，引爆大量怒嗆留言。",
+          "why_viral": "TikTok 演算法獎勵高互動（包含憤怒留言），讓創作者能快速漲粉。部分菲律賓創作者和媒體開始公開討論這是否是健康的內容生態，帶動二次討論浪潮——連「批評 Ragebaiting」本身也變成流量。",
+          "metrics": "搜尋結果確認菲律賓 ragebaiting 為 2026 年主要網路文化趨勢；具體個別影片數據待查證。",
+          "marketing_angle": "品牌絕對不建議做 Ragebaiting——一旦被認定在操弄情緒，反效果極大且難修復。但可借此觀察哪些話題在菲律賓受眾中最能引起強烈反應，用來優化你的正面內容主題與切入角度。"
+        },
+        "category": "social",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-05-01" },
+          { "platform": "facebook", "role": "熱議", "date": "2026-05-12" },
+          { "platform": "x", "role": "熱議", "date": "2026-05-15" },
+          { "platform": "reddit", "role": "熱議", "date": "2026-05-18" }
+        ],
+        "keywords": ["Philippines TikTok ragebaiting 2026", "Pinoy rage bait viral", "Filipino TikTok controversy creator"],
+        "heat_score": 65
+      },
+      {
+        "id": "W21-009",
+        "title": "《Hawak Mo Ang Beat》衍生「Pitik Queen」現象：素人舞蹈 KOL 一夕爆紅",
+        "summary": "《Hawak Mo Ang Beat》的持續熱度衍生出新一代素人舞蹈 KOL「Pitik Queen」，Cebu 地區的她靠獨特詮釋方式被媒體點名報導，帶動地方素人走紅現象。",
+        "detail": {
+          "what": "Cebu Daily News 報導，《Hawak Mo Ang Beat》的病毒式擴散讓一位被稱為「Pitik Queen」的 Cebu 素人舞者意外走紅——她的特色詮釋版本在 TikTok 流傳，成為地方媒體追蹤的案例。這是「梗曲帶動素人出道」的典型菲律賓模式。",
+          "why_viral": "菲律賓社群文化中，「素人因梗走紅再被主流媒體發掘」是固定劇本，群眾樂於支持這類「一夕成名」故事，轉發動力強。Pitik Queen 的出現又讓 #HawakMoAngBeat 在 Cebu 地區得到二次傳播。",
+          "metrics": "Cebu Daily News 報導已驗證（確認存在此報導）；具體 TikTok 觀看數待查證。",
+          "marketing_angle": "「素人因梗走紅」是菲律賓品牌操作很有效的切入點——找到這類正在上升的素人 KOL，合作成本極低但話題性高。菲律賓各地區（馬尼拉以外的 Cebu、Davao）的素人聲量往往被低估，值得評估納入 KOL 名單。"
+        },
+        "category": "social",
+        "badges": ["meme"],
+        "sources": [
+          { "platform": "tiktok", "role": "起源", "date": "2026-04-15" },
+          { "platform": "vertical", "role": "報導", "date": "2026-04-20", "name": "Cebu Daily News" },
+          { "platform": "facebook", "role": "延燒", "date": "2026-04-22" },
+          { "platform": "instagram", "role": "改編", "date": "2026-05-01" }
+        ],
+        "keywords": ["Pitik Queen Cebu TikTok", "Hawak Mo Ang Beat viral dancer", "Cebu Daily News Pitik Queen"],
+        "heat_score": 60
+      }
+    ]
+  }
+};
+
+// ====== 平台元資料 ======
+const PLATFORM_META = {
+  tiktok:    { label: "TikTok",   class: "source-tiktok" },
+  facebook:  { label: "FB",       class: "source-facebook" },
+  instagram: { label: "IG",       class: "source-instagram" },
+  x:         { label: "X",        class: "source-x" },
+  youtube:   { label: "YouTube",  class: "source-youtube" },
+  reddit:    { label: "Reddit",   class: "source-reddit" },
+  rappler:   { label: "Rappler",  class: "source-news" },
+  inquirer:  { label: "Inquirer", class: "source-news" },
+  gma:       { label: "GMA",      class: "source-news" },
+  abscbn:    { label: "ABS-CBN",  class: "source-news" },
+  pep:       { label: "PEP.ph",   class: "source-vertical" },
+  spot:      { label: "Spot.ph",  class: "source-vertical" },
+  oneesports:{ label: "OneEsports",class: "source-vertical" },
+  vertical:  { label: "Other",    class: "source-vertical" },
+  other:     { label: "Other",    class: "source-other" }
+};
+
+const CATEGORY_META = {
+  social:        { label: "社群", class: "badge-social" },
+  entertainment: { label: "娛樂", class: "badge-entertainment" },
+  gaming:        { label: "遊戲", class: "badge-gaming" }
+};
+
+// ====== 狀態 ======
+const state = {
+  currentWeek: null,
+  filterCategory: "all",
+  filterBreaking: false,
+  filterMeme: false,
+  expandedIds: new Set()
+};
+
+// ====== 工具函數 ======
+function formatDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" });
+}
+
+function sourceChipHtml(source, withDate = false) {
+  const meta = PLATFORM_META[source.platform] || PLATFORM_META.other;
+  const label = source.name || meta.label;
+  const dateStr = withDate && source.date ? ` ${formatDate(source.date)}` : "";
+  return `<span class="source-chip ${meta.class}">${label} ${source.role}${dateStr}</span>`;
+}
+
+// ====== 渲染卡片 ======
+function renderCard(card) {
+  const isExpanded = state.expandedIds.has(card.id);
+  const catMeta = CATEGORY_META[card.category] || CATEGORY_META.social;
+
+  const badgesHtml = [];
+  if (card.badges.includes("breaking")) badgesHtml.push('<span class="badge badge-breaking">爆</span>');
+  if (card.badges.includes("meme")) badgesHtml.push('<span class="badge badge-meme">純梗</span>');
+  badgesHtml.push(`<span class="badge ${catMeta.class}">${catMeta.label}</span>`);
+
+  const maxSourcesCollapsed = 6;
+  const sourceChipsAll = card.sources.map(s => sourceChipHtml(s, false));
+  let sourceChipsHtml = sourceChipsAll.slice(0, maxSourcesCollapsed).join("");
+  if (sourceChipsAll.length > maxSourcesCollapsed) {
+    sourceChipsHtml += `<span class="source-chip source-other">+${sourceChipsAll.length - maxSourcesCollapsed} more</span>`;
+  }
+
+  let detailHtml = "";
+  if (isExpanded) {
+    const sourceChipsExpanded = card.sources.map(s => sourceChipHtml(s, true)).join("");
+    const keywordsHtml = (card.keywords || []).map(k => `<code class="keyword-chip">${k}</code>`).join("");
+    detailHtml = `
+      <div class="detail-block">
+        <div class="detail-section">
+          <div class="detail-label">這是什麼</div>
+          <div class="detail-text">${card.detail.what}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">為什麼紅</div>
+          <div class="detail-text">${card.detail.why_viral}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">具體熱度</div>
+          <div class="detail-text">${card.detail.metrics}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">行銷可用性</div>
+          <div class="detail-text">${card.detail.marketing_angle}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">來源平台（含日期）</div>
+          <div class="sources-row">${sourceChipsExpanded}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">搜尋關鍵字</div>
+          <div>${keywordsHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <article class="card ${isExpanded ? 'expanded' : ''}" data-id="${card.id}">
+      <div class="card-badges">
+        ${badgesHtml.join("")}
+        <span class="heat-score">熱度 ${card.heat_score}</span>
+      </div>
+      <h2 class="card-title">${card.title}</h2>
+      <p class="card-summary">${card.summary}</p>
+      ${!isExpanded ? `
+        <div class="sources-row">
+          <span class="sources-label">來源：</span>
+          ${sourceChipsHtml}
+        </div>
+      ` : ''}
+      ${detailHtml}
+      <div class="card-footer">
+        ${isExpanded ? `
+          <button class="small-btn" data-action="copy" data-id="${card.id}">📋 複製全文</button>
+          <button class="small-btn" data-action="collapse" data-id="${card.id}">收合 ▴</button>
+        ` : `
+          <button class="small-btn" data-action="expand" data-id="${card.id}">展開 ▾</button>
+        `}
+      </div>
+    </article>
+  `;
+}
+
+function getFilteredCards() {
+  const week = DATA[state.currentWeek];
+  if (!week) return [];
+  let cards = [...week.cards];
+
+  if (state.filterCategory !== "all") {
+    cards = cards.filter(c => c.category === state.filterCategory);
+  }
+  if (state.filterBreaking) {
+    cards = cards.filter(c => c.badges.includes("breaking"));
+  }
+  if (state.filterMeme) {
+    cards = cards.filter(c => c.badges.includes("meme"));
+  }
+  cards.sort((a, b) => b.heat_score - a.heat_score);
+  return cards;
+}
+
+function render() {
+  const week = DATA[state.currentWeek];
+  if (!week) return;
+
+  const weeks = Object.keys(DATA).sort().reverse();
+  const isHistory = state.currentWeek !== weeks[0];
+
+  // Meta
+  const cards = getFilteredCards();
+  const totalCards = week.cards.length;
+  const metaEl = document.getElementById("weekMeta");
+  let metaText = `${week.period}｜${totalCards} 張卡片`;
+  if (cards.length !== totalCards) metaText += `｜篩選後顯示 ${cards.length} 張`;
+  metaEl.innerHTML = metaText + (isHistory ? '<span class="history-tag">（檢視歷史週）</span>' : '');
+
+  // Refresh button state
+  const refreshBtn = document.getElementById("refreshBtn");
+  refreshBtn.disabled = isHistory;
+
+  // Cards
+  const listEl = document.getElementById("cardsList");
+  if (cards.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">目前篩選條件下沒有符合的卡片。試著解除一些篩選？</div>';
+  } else {
+    listEl.innerHTML = cards.map(renderCard).join("");
+  }
+
+  // Last updated
+  document.getElementById("lastUpdated").textContent =
+    `最近更新：${new Date(week.updated_at).toLocaleString("zh-TW")}`;
+}
+
+// ====== 初始化 ======
+function init() {
+  const weeks = Object.keys(DATA).sort().reverse();
+  state.currentWeek = weeks[0];
+
+  // Week selector
+  const sel = document.getElementById("weekSelector");
+  sel.innerHTML = weeks.map((w, i) => {
+    const label = i === 0 ? `本週 (${w})` : i === 1 ? `上週 (${w})` : `${i} 週前 (${w})`;
+    return `<option value="${w}">${label}</option>`;
+  }).join("");
+  sel.value = state.currentWeek;
+  sel.addEventListener("change", e => {
+    state.currentWeek = e.target.value;
+    state.expandedIds.clear();
+    render();
+  });
+
+  // Category filters
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.filterCategory = btn.dataset.category;
+      render();
+    });
+  });
+
+  // Badge filters
+  document.getElementById("filterBreaking").addEventListener("change", e => {
+    state.filterBreaking = e.target.checked;
+    render();
+  });
+  document.getElementById("filterMeme").addEventListener("change", e => {
+    state.filterMeme = e.target.checked;
+    render();
+  });
+
+  // Card actions (delegated)
+  document.getElementById("cardsList").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    if (action === "expand") {
+      state.expandedIds.add(id);
+      render();
+    } else if (action === "collapse") {
+      state.expandedIds.delete(id);
+      render();
+    } else if (action === "copy") {
+      const card = DATA[state.currentWeek].cards.find(c => c.id === id);
+      const text = formatCardAsText(card);
+      copyToClipboard(text, "已複製卡片全文到剪貼簿");
+    }
+  });
+
+  // Refresh modal
+  document.getElementById("refreshBtn").addEventListener("click", () => {
+    document.getElementById("refreshModal").classList.remove("hidden");
+  });
+  document.getElementById("closeModalBtn").addEventListener("click", () => {
+    document.getElementById("refreshModal").classList.add("hidden");
+  });
+  document.getElementById("copyPromptBtn").addEventListener("click", () => {
+    copyToClipboard("請更新本週菲律賓話題週報", "指令已複製，請貼到 Cowork 對話視窗");
+    document.getElementById("refreshModal").classList.add("hidden");
+  });
+  document.getElementById("refreshModal").addEventListener("click", e => {
+    if (e.target.id === "refreshModal") {
+      e.currentTarget.classList.add("hidden");
+    }
+  });
+
+  render();
+}
+
+function formatCardAsText(card) {
+  const sources = card.sources.map(s => `${(PLATFORM_META[s.platform] || PLATFORM_META.other).label} ${s.role}（${formatDate(s.date)}）`).join("、");
+  return `【${card.title}】
+
+▌摘要
+${card.summary}
+
+▌這是什麼
+${card.detail.what}
+
+▌為什麼紅
+${card.detail.why_viral}
+
+▌具體熱度
+${card.detail.metrics}
+
+▌行銷可用性
+${card.detail.marketing_angle}
+
+▌來源平台
+${sources}
+
+▌搜尋關鍵字
+${(card.keywords || []).join(" / ")}
+
+—— 菲律賓話題週報 ${DATA[state.currentWeek].period} ——`;
+}
+
+function copyToClipboard(text, toastMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(toastMsg));
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); showToast(toastMsg); }
+    catch (e) { showToast("複製失敗，請手動選取"); }
+    document.body.removeChild(ta);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
